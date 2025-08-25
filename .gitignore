@@ -1,0 +1,21 @@
+# Build / IDE junk
+target/
+*.log
+*.iml
+.idea/
+.project
+.classpath
+.settings/
+.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+.mvn/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env
+src/main/resources/application.properties
+src/main/resources/application-*.properties

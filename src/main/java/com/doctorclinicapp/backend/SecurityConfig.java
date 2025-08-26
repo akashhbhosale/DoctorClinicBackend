@@ -31,7 +31,7 @@ public class SecurityConfig {
   @Bean
   public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
       var cfg = new org.springframework.web.cors.CorsConfiguration();
-      cfg.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // React dev server
+      cfg.setAllowedOrigins(java.util.List.of("http://localhost:5173", "https://*.vercel.app")); // React dev server
       cfg.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
       cfg.setAllowedHeaders(java.util.List.of("*"));
       cfg.setAllowCredentials(true);

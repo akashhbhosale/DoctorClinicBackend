@@ -11,34 +11,36 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-  // <-- add this bean
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+	// <-- add this bean
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-      .csrf(csrf -> csrf.disable())
-      .cors(Customizer.withDefaults())
-      // keep everything open while we finish auth
-      .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
+				// keep everything open while we finish auth
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
-    return http.build();
-  }
-  
-  @Bean
-  public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-      var cfg = new org.springframework.web.cors.CorsConfiguration();
-      cfg.setAllowedOrigins(java.util.List.of("http://localhost:5173", "https://*.vercel.app")); // React dev server
-      cfg.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-      cfg.setAllowedHeaders(java.util.List.of("*"));
-      cfg.setAllowCredentials(true);
+		return http.build();
+	}
 
-      var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-      source.registerCorsConfiguration("/**", cfg);
-      return source;
-  }
+	@Bean
+	public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+		var cfg = new org.springframework.web.cors.CorsConfiguration();
+//      cfg.setAllowedOrigins(java.util.List.of("http://localhost:5173", "https://*.vercel.app")); // React dev server
+		cfg.setAllowedOriginPatterns(java.util.List.of("http://localhost:5173", "https://*.vercel.app" // matches your// Vercel preview +
+	// or replace with your exact domain, e.g.
+		// "https://doctor-clinic-frontend.vercel.app"
+		));
+		cfg.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		cfg.setAllowedHeaders(java.util.List.of("*"));
+		cfg.setAllowCredentials(true);
+
+		var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", cfg);
+		return source;
+	}
 
 }

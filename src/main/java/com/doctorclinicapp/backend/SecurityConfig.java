@@ -11,12 +11,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-	// <-- add this bean
+	// Password Encoder
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	
+	// Securityfilterchain  function 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
@@ -26,6 +28,8 @@ public class SecurityConfig {
 		return http.build();
 	}
 
+	
+	// Configurations
 	@Bean
 	public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
 		var cfg = new org.springframework.web.cors.CorsConfiguration();

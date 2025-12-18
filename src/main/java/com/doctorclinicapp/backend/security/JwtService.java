@@ -29,7 +29,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /** Generate a JWT with username as subject and optional extra claims */
+    /** Generate a JWT with user name as subject and optional extra claims */
     public String generateToken(String username, Map<String, Object> extraClaims) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtExpirationMs);

@@ -126,6 +126,4 @@ public class DoctorController {
         doctorRepository.deleteById(id);
         return ResponseEntity.ok(java.util.Map.of("message", "Doctor deleted", "id", id));
     }
-
-
-}
+ }

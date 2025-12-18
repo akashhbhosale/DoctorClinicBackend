@@ -2,7 +2,6 @@ package com.doctorclinicapp.backend.repository;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.doctorclinicapp.backend.enums.DoctorSpeciality;
 import com.doctorclinicapp.backend.model.Doctor;
 import java.util.List;

@@ -28,5 +28,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     // Find patient by full name (case-insensitive)
     List<Patient> findByFullNameContainingIgnoreCase(String fullNamePart);
 
-    // Additional custom queries can be added as needed
+    
 }

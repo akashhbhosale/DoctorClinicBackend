@@ -7,6 +7,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import com.doctorclinicapp.backend.dto.UpdatePatientRequest;
+import com.doctorclinicapp.backend.exception.DuplicateResourceException;
+import com.doctorclinicapp.backend.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service
 public class PatientService {
 
@@ -19,10 +25,53 @@ public class PatientService {
 
     // ---- CRUD OPERATIONS ----
 
-    // Save or update a patient
+    // Save  a patient
     public Patient savePatient(Patient patient) {
+
+        if (patientRepository.existsByAbhaId(patient.getAbhaId())) {
+            throw new DuplicateResourceException("ABHA ID already exists");
+        }
+
+        if (patientRepository.existsByPhoneNo(patient.getPhoneNo())) {
+            throw new DuplicateResourceException("Phone number already exists");
+        }
+        
+        if (patientRepository.existsByEmail(patient.getEmail())) {
+            throw new DuplicateResourceException("Email already exists");
+        }
+
         return patientRepository.save(patient);
     }
+    
+    public Patient updatePatient(Long id, UpdatePatientRequest req) {
+
+        Patient patient = patientRepository.findById(id)
+        		.orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+
+        // Duplicate email check (exclude same patient)
+        if (!patient.getEmail().equals(req.getEmail())
+                && patientRepository.existsByEmail(req.getEmail())) {
+            throw new DuplicateResourceException("Email already exists");
+        }
+
+        // Duplicate phone check (exclude same patient)
+        if (!patient.getPhoneNo().equals(req.getPhoneNo())
+                && patientRepository.existsByPhoneNo(req.getPhoneNo())) {
+            throw new DuplicateResourceException("Phone number already exists");
+        }
+
+        patient.setFullName(req.getFullName());
+        patient.setGender(req.getGender());
+        patient.setEmail(req.getEmail());
+        patient.setPhoneNo(req.getPhoneNo());
+        patient.setBloodGroup(req.getBloodGroup());
+        patient.setOccupation(req.getOccupation());
+        patient.setAddress(req.getAddress());
+
+        return patientRepository.save(patient);
+    }
+
 
     // Get patient by ID
     public Optional<Patient> getPatientById(Long id) {
@@ -61,18 +110,9 @@ public class PatientService {
         return patientRepository.existsByPhoneNo(phoneNo);
     }
 
-    // Find patient by Registration No
-    public Optional<Patient> getPatientByRegistrationNo(String registrationNo) {
-        return patientRepository.findByRegistrationNo(registrationNo);
-    }
-
-    // Check if registration number exists
-    public boolean existsByRegistrationNo(String registrationNo) {
-        return patientRepository.existsByRegistrationNo(registrationNo);
-    }
-
+   
     // Find patients by name (case-insensitive contains)
-    public List<Patient> searchByFullName(String namePart) {
-        return patientRepository.findByFullNameContainingIgnoreCase(namePart);
-    }
+    public Page<Patient> searchPatientsByName(String name, Pageable pageable) {
+        return patientRepository.findByFullNameContainingIgnoreCase(name, pageable);
+        }
 }

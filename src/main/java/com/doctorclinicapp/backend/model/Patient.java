@@ -35,16 +35,7 @@ public class Patient {
     @Column(nullable = false, unique = true, length = 50)
     @Size(max = 50)
     private String registrationNo;
-
-    @Column(nullable = false, unique = true, length = 50)
-    @NotBlank @Size(max = 50)
-    private String username;
-
-    @Column(nullable = false)
-    @NotBlank
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
-
+    
     @Column(nullable = false, length = 50)
     @NotBlank @Size(max = 50)
     private String gender; // Store gender as a String, "Male", "Female", etc.

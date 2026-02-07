@@ -9,13 +9,22 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.doctorclinicapp.backend.dto.CreatePatientRequest;
+import com.doctorclinicapp.backend.dto.PatientResponse;
+import com.doctorclinicapp.backend.dto.UpdatePatientRequest;
 import com.doctorclinicapp.backend.model.Patient;
 import com.doctorclinicapp.backend.service.PatientService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -32,10 +41,36 @@ public class PatientController {
 	// CREATE / UPDATE PATIENT
 	// -------------------------------
 	@PostMapping("/save")
-	public ResponseEntity<Patient> savePatient(@RequestBody Patient patient) {
-		Patient savedPatient = patientService.savePatient(patient);
-		return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
+	public ResponseEntity<Patient> savePatient(
+	        @RequestBody @jakarta.validation.Valid CreatePatientRequest req) {
+
+	    Patient patient = Patient.builder()
+	            .abhaId(req.getAbhaId())
+	            .fullName(req.getFullName())
+	            .gender(req.getGender())
+	            .dateOfBirth(req.getDateOfBirth())
+	            .email(req.getEmail())
+	            .phoneNo(req.getPhoneNo())
+	            .age(req.getAge())
+	            .occupation(req.getOccupation())
+	            .bloodGroup(req.getBloodGroup())
+	            .address(req.getAddress())
+	            .build();
+
+	    Patient savedPatient = patientService.savePatient(patient);
+	    return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
 	}
+	
+	@PutMapping("/update/{id}")
+	public ResponseEntity<PatientResponse> updatePatient(
+	        @PathVariable Long id,
+	        @RequestBody @Valid UpdatePatientRequest req) {
+
+	    Patient updated = patientService.updatePatient(id, req);
+
+	    return ResponseEntity.ok(PatientResponse.fromEntity(updated));
+	}
+
 
 	// -------------------------------
 	// GET ALL PATIENTS
@@ -83,20 +118,20 @@ public class PatientController {
 	}
 
 	// -------------------------------
-	// SEARCH BY REGISTRATION NUMBER
-	// -------------------------------
-	@GetMapping("/registration/{registrationNo}")
-	public ResponseEntity<Patient> getByRegistrationNo(@PathVariable String registrationNo) {
-		Optional<Patient> patient = patientService.getPatientByRegistrationNo(registrationNo);
-		return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-	}
-
-	// -------------------------------
-	// SEARCH BY FULL NAME (contains, ignore case)
+	// SEARCH BY FULL NAME (PAGINATED)
 	// -------------------------------
 	@GetMapping("/search/name")
-	public ResponseEntity<List<Patient>> searchByName(@RequestParam String name) {
-		List<Patient> patients = patientService.searchByFullName(name);
-		return patients.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(patients);
+	public ResponseEntity<Page<PatientResponse>> searchByName(
+	        @RequestParam String name,
+	        Pageable pageable) {
+
+	    Page<Patient> patientPage =
+	            patientService.searchPatientsByName(name, pageable);
+
+	    Page<PatientResponse> responsePage =
+	            patientPage.map(PatientResponse::fromEntity);
+
+	    return ResponseEntity.ok(responsePage);
 	}
+
 }

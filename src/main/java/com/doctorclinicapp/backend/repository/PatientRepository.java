@@ -4,6 +4,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.doctorclinicapp.backend.model.Patient;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
@@ -18,15 +20,11 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     // Check if a patient with a given phone number exists
     boolean existsByPhoneNo(String phoneNo);
-
-    // Find patient by registration number (unique)
-    Optional<Patient> findByRegistrationNo(String registrationNo);
-
-    // Check if a patient with a given registration number exists
-    boolean existsByRegistrationNo(String registrationNo);
+    
+ // Check if a patient with a given phone number exists
+    boolean existsByEmail(String email);
 
     // Find patient by full name (case-insensitive)
-    List<Patient> findByFullNameContainingIgnoreCase(String fullNamePart);
-
-    
+    Page<Patient> findByFullNameContainingIgnoreCase(String fullNamePart, Pageable pageable);
+  
 }

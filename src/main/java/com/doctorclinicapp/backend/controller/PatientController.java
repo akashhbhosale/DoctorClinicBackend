@@ -22,7 +22,7 @@ import com.doctorclinicapp.backend.model.Patient;
 import com.doctorclinicapp.backend.service.PatientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.data.web.PageableDefault;
 
 import jakarta.validation.Valid;
 
@@ -71,16 +71,6 @@ public class PatientController {
 	    return ResponseEntity.ok(PatientResponse.fromEntity(updated));
 	}
 
-
-	// -------------------------------
-	// GET ALL PATIENTS
-	// -------------------------------
-	@GetMapping("/all")
-	public ResponseEntity<List<Patient>> getAllPatients() {
-		List<Patient> patients = patientService.getAllPatients();
-		return ResponseEntity.ok(patients);
-	}
-
 	// -------------------------------
 	// GET PATIENT BY ID
 	// -------------------------------
@@ -120,13 +110,27 @@ public class PatientController {
 	// -------------------------------
 	// SEARCH BY FULL NAME (PAGINATED)
 	// -------------------------------
-	@GetMapping("/search/name")
-	public ResponseEntity<Page<PatientResponse>> searchByName(
-	        @RequestParam String name,
+	@GetMapping("/search")
+	public ResponseEntity<Page<PatientResponse>> searchPatients(
+	        @RequestParam String query,
 	        Pageable pageable) {
 
-	    Page<Patient> patientPage =
-	            patientService.searchPatientsByName(name, pageable);
+	    Page<Patient> page = patientService.searchPatients(query, pageable);
+
+	    Page<PatientResponse> responsePage =
+	            page.map(PatientResponse::fromEntity);
+
+	    return ResponseEntity.ok(responsePage);
+	}
+
+	// -------------------------------
+	// GET ALL PATIENTS (PAGINATED)
+	// -------------------------------
+	@GetMapping
+	public ResponseEntity<Page<PatientResponse>> getAllPatients(
+	        @PageableDefault(size = 10, sort = "fullName") Pageable pageable) {
+
+	    Page<Patient> patientPage = patientService.getAllPatients(pageable);
 
 	    Page<PatientResponse> responsePage =
 	            patientPage.map(PatientResponse::fromEntity);
@@ -134,4 +138,7 @@ public class PatientController {
 	    return ResponseEntity.ok(responsePage);
 	}
 
+
 }
+
+

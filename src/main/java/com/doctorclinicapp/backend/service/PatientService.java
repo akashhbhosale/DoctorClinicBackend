@@ -115,4 +115,13 @@ public class PatientService {
     public Page<Patient> searchPatientsByName(String name, Pageable pageable) {
         return patientRepository.findByFullNameContainingIgnoreCase(name, pageable);
         }
+
+	public Page<Patient> getAllPatients(Pageable pageable) {
+		return patientRepository.findAll(pageable);
+		}
+	
+	public Page<Patient> searchPatients(String query, Pageable pageable) {
+	    return patientRepository.searchPatients(query, pageable);
+	}
+
 }

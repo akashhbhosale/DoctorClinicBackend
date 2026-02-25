@@ -60,9 +60,23 @@ public class PatientService {
                 && patientRepository.existsByPhoneNo(req.getPhoneNo())) {
             throw new DuplicateResourceException("Phone number already exists");
         }
-
+        
+     // Duplicate ABHA check (exclude same patient)
+        if (!patient.getAbhaId().equals(req.getAbhaId())
+                && patientRepository.existsByAbhaId(req.getAbhaId())) {
+            throw new DuplicateResourceException("ABHA ID already exists");
+        }
+        
+        patient.setAbhaId(req.getAbhaId());
         patient.setFullName(req.getFullName());
         patient.setGender(req.getGender());
+        patient.setDateOfBirth(req.getDateOfBirth()); 
+        if (req.getDateOfBirth() != null) {
+            int age = java.time.Period
+                    .between(req.getDateOfBirth(), java.time.LocalDate.now())
+                    .getYears();
+            patient.setAge(age);
+        }
         patient.setEmail(req.getEmail());
         patient.setPhoneNo(req.getPhoneNo());
         patient.setBloodGroup(req.getBloodGroup());
@@ -123,5 +137,4 @@ public class PatientService {
 	public Page<Patient> searchPatients(String query, Pageable pageable) {
 	    return patientRepository.searchPatients(query, pageable);
 	}
-
 }

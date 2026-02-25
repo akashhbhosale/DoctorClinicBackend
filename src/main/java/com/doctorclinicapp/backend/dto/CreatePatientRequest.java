@@ -3,7 +3,6 @@ package com.doctorclinicapp.backend.dto;
 import com.doctorclinicapp.backend.enums.BloodGroup;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-
 import java.time.LocalDate;
 
 @Data

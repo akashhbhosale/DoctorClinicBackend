@@ -21,7 +21,7 @@ public class DoctorAuthController {
 
     private final DoctorRepository doctorRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;   // <-- NEW
+    private final JwtService jwtService;   
 
     // --- Register Doctor ---
     @PostMapping("/register")
@@ -49,11 +49,13 @@ public class DoctorAuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         Optional<Doctor> opt = doctorRepository.findByUsername(request.getUsername());
+        
         if (opt.isEmpty()) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         }
 
         Doctor doctor = opt.get();
+        System.out.println("Full Name from DB: " + doctor.getFullName());
         if (!passwordEncoder.matches(request.getPassword(), doctor.getPassword())) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         }
@@ -66,6 +68,7 @@ public class DoctorAuthController {
                 "token", token,
                 "doctor", Map.of(
                         "id", doctor.getId(),
+                        "fullName", doctor.getFullName(),
                         "username", doctor.getUsername(),
                         "registrationNo", doctor.getRegistrationNo(),
                         "qualification", doctor.getQualification(),

@@ -37,6 +37,7 @@ public class DoctorMeController {
         return doctorRepository.findByUsername(username)
             .<ResponseEntity<?>>map(d -> ResponseEntity.ok(Map.of(
                 "id", d.getId(),
+                "fullName", d.getFullName(), 
                 "username", d.getUsername(),
                 "registrationNo", d.getRegistrationNo(),
                 "qualification", d.getQualification(),

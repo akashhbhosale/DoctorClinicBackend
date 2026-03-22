@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 import com.doctorclinicapp.backend.dto.encounter.CreateEncounterRequest;
+import com.doctorclinicapp.backend.dto.encounter.DeleteEncounterResponse;
+import com.doctorclinicapp.backend.dto.encounter.EncounterDetailsResponse;
 import com.doctorclinicapp.backend.dto.encounter.UpdateEncounterNotesRequest;
 import com.doctorclinicapp.backend.model.encounter.Encounter;
 import com.doctorclinicapp.backend.service.encounter.EncounterService;
@@ -26,7 +28,7 @@ public class EncounterController {
                 request.getPatientId(),
                 request.getDoctorId());
 
-        return ResponseEntity.ok(encounter);
+        return ResponseEntity.status(201).body(encounter);
     }
     
     //Encounter Section Code
@@ -36,5 +38,23 @@ public class EncounterController {
             @RequestBody @Valid UpdateEncounterNotesRequest request) {
 
         return encounterService.updateNotes(encounterId, request.getNotes());
+    }
+    
+    //Get
+    @GetMapping("/{id}")
+    public ResponseEntity<Encounter> getEncounterById(@PathVariable Long id) {
+        return ResponseEntity.ok(encounterService.getEncounterById(id));
+    }
+    
+    //Show All
+    @GetMapping("/{id}/details")
+    public ResponseEntity<EncounterDetailsResponse> getEncounterDetails(@PathVariable Long id) {
+        return ResponseEntity.ok(encounterService.getEncounterDetails(id));
+    }
+    
+    // Delete All
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteEncounterResponse> deleteEncounter(@PathVariable Long id) {
+        return ResponseEntity.ok(encounterService.deleteEncounter(id));
     }
 }

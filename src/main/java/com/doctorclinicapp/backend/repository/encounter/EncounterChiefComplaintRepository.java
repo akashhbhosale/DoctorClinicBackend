@@ -9,6 +9,9 @@ public interface EncounterChiefComplaintRepository
         extends JpaRepository<EncounterChiefComplaint, Long> {
 
     List<EncounterChiefComplaint> findByEncounterId(Long encounterId);
-    
 
+	boolean existsByEncounterIdAndChiefComplaintId(Long encounterId, Long complaintId);
+	
+	void deleteByEncounterId(Long encounterId);
+    
 }

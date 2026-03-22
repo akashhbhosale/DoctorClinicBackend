@@ -27,6 +27,14 @@ public class EncounterChiefComplaintService {
 
     public EncounterChiefComplaint addComplaint(AddEncounterChiefComplaintRequest request) {
 
+    	boolean exists = encounterChiefComplaintRepository
+    	        .existsByEncounterIdAndChiefComplaintId(
+    	                request.getEncounterId(),
+    	                request.getComplaintId());
+
+    	if (exists) {
+    	    throw new IllegalArgumentException("This chief complaint is already added to the encounter");
+    	}
         Encounter encounter = encounterRepository.findById(request.getEncounterId())
                 .orElseThrow(() -> new ResourceNotFoundException("Encounter not found"));
 
@@ -49,6 +57,7 @@ public class EncounterChiefComplaintService {
 
         return complaints.stream()
                 .map(c -> new EncounterChiefComplaintResponse(
+                		c.getId(),
                         c.getChiefComplaint().getComplaintName(),
                         c.getTimeSinceDays()
                 ))

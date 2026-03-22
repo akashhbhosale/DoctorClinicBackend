@@ -5,9 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class EncounterChiefComplaintResponse {
-
-	private Long id;
-    private String complaint;
-    private Integer timeSinceDays;
+public class DeleteEncounterResponse {
+    private String message;
 }

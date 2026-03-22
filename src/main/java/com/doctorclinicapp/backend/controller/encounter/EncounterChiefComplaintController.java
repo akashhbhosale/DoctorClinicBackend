@@ -3,6 +3,7 @@ package com.doctorclinicapp.backend.controller.encounter;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,10 +28,10 @@ public class EncounterChiefComplaintController {
     private final EncounterChiefComplaintService service;
 
     @PostMapping
-    public EncounterChiefComplaint addComplaint(
+    public ResponseEntity<EncounterChiefComplaint> addComplaint(
             @RequestBody @Valid AddEncounterChiefComplaintRequest request) {
 
-        return service.addComplaint(request);
+        return ResponseEntity.status(201).body(service.addComplaint(request));
     }
     
     // Get

@@ -56,7 +56,6 @@ public class HistoryServiceImpl implements HistoryService {
                     .months(history.getMonths())
                     .days(history.getDays())
                     .build()
-
         ).collect(Collectors.toList());
     }
     

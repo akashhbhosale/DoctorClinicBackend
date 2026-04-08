@@ -10,6 +10,8 @@ import com.doctorclinicapp.backend.dto.encounter.EncounterDetailsResponse;
 import com.doctorclinicapp.backend.dto.encounter.UpdateEncounterNotesRequest;
 import com.doctorclinicapp.backend.model.encounter.Encounter;
 import com.doctorclinicapp.backend.service.encounter.EncounterService;
+import java.util.List;
+import com.doctorclinicapp.backend.dto.encounter.EncounterHistoryResponse;
 
 import jakarta.validation.Valid;
 
@@ -56,5 +58,12 @@ public class EncounterController {
     @DeleteMapping("/{id}")
     public ResponseEntity<DeleteEncounterResponse> deleteEncounter(@PathVariable Long id) {
         return ResponseEntity.ok(encounterService.deleteEncounter(id));
+    }
+    
+    // To get history of encounters
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<EncounterHistoryResponse>> getEncounterHistoryByPatient(
+            @PathVariable Long patientId) {
+        return ResponseEntity.ok(encounterService.getEncounterHistoryByPatientId(patientId));
     }
 }

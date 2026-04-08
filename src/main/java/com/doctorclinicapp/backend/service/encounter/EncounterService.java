@@ -1,6 +1,7 @@
 package com.doctorclinicapp.backend.service.encounter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -8,6 +9,7 @@ import com.doctorclinicapp.backend.dto.encounter.DeleteEncounterResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterChiefComplaintResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterDetailsResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterDiagnosisResponse;
+import com.doctorclinicapp.backend.dto.encounter.EncounterHistoryResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterProcedureResponse;
 import com.doctorclinicapp.backend.exception.ResourceNotFoundException;
 import com.doctorclinicapp.backend.model.Doctor;
@@ -137,5 +139,23 @@ public class EncounterService {
         encounterRepository.delete(encounter);
 
         return new DeleteEncounterResponse("Encounter and all related data deleted successfully");
+    }
+    
+    // To get list of previous History of encounters 
+    public List<EncounterHistoryResponse> getEncounterHistoryByPatientId(Long patientId) {
+
+        patientRepository.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+        return encounterRepository.findByPatientIdOrderByEncounterDateDesc(patientId)
+                .stream()
+                .map(encounter -> EncounterHistoryResponse.builder()
+                        .id(encounter.getId())
+                        .encounterDate(encounter.getEncounterDate())
+                        .doctorId(encounter.getDoctor() != null ? encounter.getDoctor().getId() : null)
+                        .doctorName(encounter.getDoctor() != null ? encounter.getDoctor().getFullName() : null)
+                        .notes(encounter.getNotes())
+                        .build())
+                .toList();
     }
 }

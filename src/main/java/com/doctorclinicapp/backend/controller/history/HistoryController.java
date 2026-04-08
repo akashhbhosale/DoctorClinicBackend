@@ -22,7 +22,6 @@ public class HistoryController {
 	// Get Past Medical History
 	@GetMapping("/past/{patientId}")
 	public List<PastMedicalHistoryDTO> getPastMedicalHistory(@PathVariable Long patientId) {
-
 		return historyService.getPastMedicalHistory(patientId);
 	}
 
@@ -43,21 +42,18 @@ public class HistoryController {
 	// Get Family History
 	@GetMapping("/family/{patientId}")
 	public List<FamilyHistoryDTO> getFamilyHistory(@PathVariable Long patientId) {
-
 		return historyService.getFamilyHistory(patientId);
 	}
 
 	// Add Family History
 	@PostMapping("/family")
 	public FamilyHistoryDTO addFamilyHistory(@RequestBody FamilyHistoryDTO dto) {
-
 		return historyService.addFamilyHistory(dto);
 	}
 
 	// Delete Family History
 	@DeleteMapping("/family/{id}")
 	public void deleteFamilyHistory(@PathVariable Long id) {
-
 		historyService.deleteFamilyHistory(id);
 	}
 

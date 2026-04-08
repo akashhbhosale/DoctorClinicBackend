@@ -1,21 +1,69 @@
-# Build / IDE junk
+# ===============================
+
+# Build
+
+# ===============================
+
 target/
+build/
 *.log
-*.iml
-.idea/
+*.class
+
+# ===============================
+
+# IDE (VERY IMPORTANT)
+
+# ===============================
+
+.metadata/
 .project
 .classpath
 .settings/
-.mvn/wrapper/maven-wrapper.jar
-mvnw
-mvnw.cmd
-.mvn/
 
-# OS/editor
+.idea/
+*.iml
+
+.vscode/
+
+# ===============================
+
+# OS
+
+# ===============================
+
 .DS_Store
 Thumbs.db
 
+# ===============================
+
 # Secrets
-*.env
+
+# ===============================
+
+.env
 src/main/resources/application.properties
 src/main/resources/application-*.properties
+
+# Optional template
+
+!src/main/resources/application-example.properties
+
+# ===============================
+
+# Node (if React used)
+
+# ===============================
+
+node_modules/
+dist/
+
+# ===============================
+
+# Maven Wrapper (KEEP THESE)
+
+# ===============================
+
+!.mvn/wrapper/maven-wrapper.jar
+!mvnw
+!mvnw.cmd
+

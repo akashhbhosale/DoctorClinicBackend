@@ -14,62 +14,49 @@ import com.doctorclinicapp.backend.repository.encounter.ChiefComplaintRepository
 import com.doctorclinicapp.backend.repository.encounter.EncounterChiefComplaintRepository;
 import com.doctorclinicapp.backend.repository.encounter.EncounterRepository;
 
-
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EncounterChiefComplaintService {
 
-    private final EncounterChiefComplaintRepository encounterChiefComplaintRepository;
-    private final EncounterRepository encounterRepository;
-    private final ChiefComplaintRepository chiefComplaintRepository;
+	private final EncounterChiefComplaintRepository encounterChiefComplaintRepository;
+	private final EncounterRepository encounterRepository;
+	private final ChiefComplaintRepository chiefComplaintRepository;
 
-    public EncounterChiefComplaint addComplaint(AddEncounterChiefComplaintRequest request) {
+	public EncounterChiefComplaint addComplaint(AddEncounterChiefComplaintRequest request) {
 
-    	boolean exists = encounterChiefComplaintRepository
-    	        .existsByEncounterIdAndChiefComplaintId(
-    	                request.getEncounterId(),
-    	                request.getComplaintId());
+		boolean exists = encounterChiefComplaintRepository.existsByEncounterIdAndChiefComplaintIdAndTimeSinceDays(
+				request.getEncounterId(), request.getComplaintId(), request.getTimeSinceDays());
 
-    	if (exists) {
-    	    throw new IllegalArgumentException("This chief complaint is already added to the encounter");
-    	}
-        Encounter encounter = encounterRepository.findById(request.getEncounterId())
-                .orElseThrow(() -> new ResourceNotFoundException("Encounter not found"));
+		if (exists) {
+			throw new IllegalArgumentException("This complaint with same duration already exists");
+		}
+		Encounter encounter = encounterRepository.findById(request.getEncounterId())
+				.orElseThrow(() -> new ResourceNotFoundException("Encounter not found"));
 
-        ChiefComplaint complaint = chiefComplaintRepository.findById(request.getComplaintId())
-                .orElseThrow(() -> new ResourceNotFoundException("Chief complaint not found"));
+		ChiefComplaint complaint = chiefComplaintRepository.findById(request.getComplaintId())
+				.orElseThrow(() -> new ResourceNotFoundException("Chief complaint not found"));
 
-        EncounterChiefComplaint encounterChiefComplaint = EncounterChiefComplaint.builder()
-                .encounter(encounter)
-                .chiefComplaint(complaint)
-                .timeSinceDays(request.getTimeSinceDays())
-                .build();
+		EncounterChiefComplaint encounterChiefComplaint = EncounterChiefComplaint.builder().encounter(encounter)
+				.chiefComplaint(complaint).timeSinceDays(request.getTimeSinceDays()).build();
 
-        return encounterChiefComplaintRepository.save(encounterChiefComplaint);
-    }
-    
-    public List<EncounterChiefComplaintResponse> getComplaintsByEncounterId(Long encounterId) {
+		return encounterChiefComplaintRepository.save(encounterChiefComplaint);
+	}
 
-        List<EncounterChiefComplaint> complaints =
-                encounterChiefComplaintRepository.findByEncounterId(encounterId);
+	public List<EncounterChiefComplaintResponse> getComplaintsByEncounterId(Long encounterId) {
 
-        return complaints.stream()
-                .map(c -> new EncounterChiefComplaintResponse(
-                		c.getId(),
-                        c.getChiefComplaint().getComplaintName(),
-                        c.getTimeSinceDays()
-                ))
-                .toList();
-    }
-    
-    public void deleteComplaint(Long id) {
+		List<EncounterChiefComplaint> complaints = encounterChiefComplaintRepository.findByEncounterId(encounterId);
 
-        EncounterChiefComplaint complaint =
-                encounterChiefComplaintRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
+		return complaints.stream().map(c -> new EncounterChiefComplaintResponse(c.getId(),
+				c.getChiefComplaint().getComplaintName(), c.getTimeSinceDays())).toList();
+	}
 
-        encounterChiefComplaintRepository.delete(complaint);
-    }
+	public void deleteComplaint(Long id) {
+
+		EncounterChiefComplaint complaint = encounterChiefComplaintRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
+
+		encounterChiefComplaintRepository.delete(complaint);
+	}
 }

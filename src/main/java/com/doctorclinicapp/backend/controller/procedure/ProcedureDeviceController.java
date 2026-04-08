@@ -16,7 +16,7 @@ public class ProcedureDeviceController {
 
     private final ProcedureDeviceService service;
 
-    // 🔥 GET ALL (PAGINATION)
+    // GET ALL (PAGINATION)
     @GetMapping
     public ResponseEntity<PageResponse<ProcedureDeviceResponse>> getDevices(
             @RequestParam(defaultValue = "0") int page,
@@ -25,7 +25,7 @@ public class ProcedureDeviceController {
         return ResponseEntity.ok(service.getDevices(page, size));
     }
 
-    // 🔥 SEARCH
+    // SEARCH
     @GetMapping("/search")
     public ResponseEntity<PageResponse<ProcedureDeviceResponse>> searchDevices(
             @RequestParam String keyword,

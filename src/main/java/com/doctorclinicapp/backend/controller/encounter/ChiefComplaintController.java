@@ -3,7 +3,6 @@ package com.doctorclinicapp.backend.controller.encounter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.*;
-
 import com.doctorclinicapp.backend.repository.encounter.ChiefComplaintRepository;
 import com.doctorclinicapp.backend.model.encounter.ChiefComplaint;
 

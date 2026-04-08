@@ -10,7 +10,11 @@ public interface EncounterChiefComplaintRepository
 
     List<EncounterChiefComplaint> findByEncounterId(Long encounterId);
 
-	boolean existsByEncounterIdAndChiefComplaintId(Long encounterId, Long complaintId);
+    boolean existsByEncounterIdAndChiefComplaintIdAndTimeSinceDays(
+            Long encounterId,
+            Long chiefComplaintId,
+            Integer timeSinceDays
+    );
 	
 	void deleteByEncounterId(Long encounterId);
     

@@ -2,9 +2,7 @@ package com.doctorclinicapp.backend.service.encounter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-
 import com.doctorclinicapp.backend.dto.encounter.DeleteEncounterResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterChiefComplaintResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterDetailsResponse;

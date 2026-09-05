@@ -16,125 +16,118 @@ import org.springframework.data.domain.Pageable;
 @Service
 public class PatientService {
 
-    private final PatientRepository patientRepository;
+	private final PatientRepository patientRepository;
 
-    // Constructor Injection (recommended way)
-    public PatientService(PatientRepository patientRepository) {
-        this.patientRepository = patientRepository;
-    }
+	// Constructor Injection (recommended way)
+	public PatientService(PatientRepository patientRepository) {
+		this.patientRepository = patientRepository;
+	}
 
-    // ---- CRUD OPERATIONS ----
+	// ---- CRUD OPERATIONS ----
 
-    // Save  a patient
-    public Patient savePatient(Patient patient) {
+	// Save a patient
+	public Patient savePatient(Patient patient) {
 
-        if (patientRepository.existsByAbhaId(patient.getAbhaId())) {
-            throw new DuplicateResourceException("ABHA ID already exists");
-        }
+		if (patientRepository.existsByAbhaId(patient.getAbhaId())) {
+			throw new DuplicateResourceException("ABHA ID already exists");
+		}
 
-        if (patientRepository.existsByPhoneNo(patient.getPhoneNo())) {
-            throw new DuplicateResourceException("Phone number already exists");
-        }
-        
-        if (patientRepository.existsByEmail(patient.getEmail())) {
-            throw new DuplicateResourceException("Email already exists");
-        }
+		if (patientRepository.existsByPhoneNo(patient.getPhoneNo())) {
+			throw new DuplicateResourceException("Phone number already exists");
+		}
 
-        return patientRepository.save(patient);
-    }
-    
-    public Patient updatePatient(Long id, UpdatePatientRequest req) {
+		if (patientRepository.existsByEmail(patient.getEmail())) {
+			throw new DuplicateResourceException("Email already exists");
+		}
 
-        Patient patient = patientRepository.findById(id)
-        		.orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+		return patientRepository.save(patient);
+	}
 
+	// Update patients
+	public Patient updatePatient(Long id, UpdatePatientRequest req) {
 
-        // Duplicate email check (exclude same patient)
-        if (!patient.getEmail().equals(req.getEmail())
-                && patientRepository.existsByEmail(req.getEmail())) {
-            throw new DuplicateResourceException("Email already exists");
-        }
+		Patient patient = patientRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        // Duplicate phone check (exclude same patient)
-        if (!patient.getPhoneNo().equals(req.getPhoneNo())
-                && patientRepository.existsByPhoneNo(req.getPhoneNo())) {
-            throw new DuplicateResourceException("Phone number already exists");
-        }
-        
-     // Duplicate ABHA check (exclude same patient)
-        if (!patient.getAbhaId().equals(req.getAbhaId())
-                && patientRepository.existsByAbhaId(req.getAbhaId())) {
-            throw new DuplicateResourceException("ABHA ID already exists");
-        }
-        
-        patient.setAbhaId(req.getAbhaId());
-        patient.setFullName(req.getFullName());
-        patient.setGender(req.getGender());
-        patient.setDateOfBirth(req.getDateOfBirth()); 
-        if (req.getDateOfBirth() != null) {
-            int age = java.time.Period
-                    .between(req.getDateOfBirth(), java.time.LocalDate.now())
-                    .getYears();
-            patient.setAge(age);
-        }
-        patient.setEmail(req.getEmail());
-        patient.setPhoneNo(req.getPhoneNo());
-        patient.setBloodGroup(req.getBloodGroup());
-        patient.setOccupation(req.getOccupation());
-        patient.setAddress(req.getAddress());
+		// Duplicate email check (exclude same patient)
+		if (!patient.getEmail().equals(req.getEmail()) && patientRepository.existsByEmail(req.getEmail())) {
+			throw new DuplicateResourceException("Email already exists");
+		}
 
-        return patientRepository.save(patient);
-    }
+		// Duplicate phone check (exclude same patient)
+		if (!patient.getPhoneNo().equals(req.getPhoneNo()) && patientRepository.existsByPhoneNo(req.getPhoneNo())) {
+			throw new DuplicateResourceException("Phone number already exists");
+		}
 
+		// Duplicate ABHA check (exclude same patient)
+		if (!patient.getAbhaId().equals(req.getAbhaId()) && patientRepository.existsByAbhaId(req.getAbhaId())) {
+			throw new DuplicateResourceException("ABHA ID already exists");
+		}
 
-    // Get patient by ID
-    public Optional<Patient> getPatientById(Long id) {
-        return patientRepository.findById(id);
-    }
+		patient.setAbhaId(req.getAbhaId());
+		patient.setFullName(req.getFullName());
+		patient.setGender(req.getGender());
+		patient.setDateOfBirth(req.getDateOfBirth());
+		if (req.getDateOfBirth() != null) {
+			int age = java.time.Period.between(req.getDateOfBirth(), java.time.LocalDate.now()).getYears();
+			patient.setAge(age);
+		}
+		patient.setEmail(req.getEmail());
+		patient.setPhoneNo(req.getPhoneNo());
+		patient.setBloodGroup(req.getBloodGroup());
+		patient.setOccupation(req.getOccupation());
+		patient.setAddress(req.getAddress());
 
-    // Delete patient by ID
-    public void deletePatient(Long id) {
-        patientRepository.deleteById(id);
-    }
+		return patientRepository.save(patient);
+	}
 
-    // Get all patients
-    public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
-    }
+	// Get patient by ID
+	public Optional<Patient> getPatientById(Long id) {
+		return patientRepository.findById(id);
+	}
 
-    // ---- CUSTOM SEARCH METHODS ----
+	// Delete patient by ID
+	public void deletePatient(Long id) {
+		patientRepository.deleteById(id);
+	}
 
-    // Find patient by ABHA ID
-    public Optional<Patient> getPatientByAbhaId(String abhaId) {
-        return patientRepository.findByAbhaId(abhaId);
-    }
+	// Get all patients
+	public List<Patient> getAllPatients() {
+		return patientRepository.findAll();
+	}
 
-    // Check if ABHA ID exists
-    public boolean existsByAbhaId(String abhaId) {
-        return patientRepository.existsByAbhaId(abhaId);
-    }
+	// ---- CUSTOM SEARCH METHODS ----
 
-    // Find patient by Phone No
-    public Optional<Patient> getPatientByPhoneNo(String phoneNo) {
-        return patientRepository.findByPhoneNo(phoneNo);
-    }
+	// Find patient by ABHA ID
+	public Optional<Patient> getPatientByAbhaId(String abhaId) {
+		return patientRepository.findByAbhaId(abhaId);
+	}
 
-    // Check if phone number exists
-    public boolean existsByPhoneNo(String phoneNo) {
-        return patientRepository.existsByPhoneNo(phoneNo);
-    }
+	// Check if ABHA ID exists
+	public boolean existsByAbhaId(String abhaId) {
+		return patientRepository.existsByAbhaId(abhaId);
+	}
 
-   
-    // Find patients by name (case-insensitive contains)
-    public Page<Patient> searchPatientsByName(String name, Pageable pageable) {
-        return patientRepository.findByFullNameContainingIgnoreCase(name, pageable);
-        }
+	// Find patient by Phone No
+	public Optional<Patient> getPatientByPhoneNo(String phoneNo) {
+		return patientRepository.findByPhoneNo(phoneNo);
+	}
+
+	// Check if phone number exists
+	public boolean existsByPhoneNo(String phoneNo) {
+		return patientRepository.existsByPhoneNo(phoneNo);
+	}
+
+	// Find patients by name (case-insensitive contains)
+	public Page<Patient> searchPatientsByName(String name, Pageable pageable) {
+		return patientRepository.findByFullNameContainingIgnoreCase(name, pageable);
+	}
 
 	public Page<Patient> getAllPatients(Pageable pageable) {
 		return patientRepository.findAll(pageable);
-		}
-	
+	}
+
 	public Page<Patient> searchPatients(String query, Pageable pageable) {
-	    return patientRepository.searchPatients(query, pageable);
+		return patientRepository.searchPatients(query, pageable);
 	}
 }

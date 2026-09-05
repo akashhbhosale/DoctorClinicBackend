@@ -41,34 +41,26 @@ public class PatientController {
 	// CREATE / UPDATE PATIENT
 	// -------------------------------
 	@PostMapping("/save")
-	public ResponseEntity<Patient> savePatient(
-	        @RequestBody @jakarta.validation.Valid CreatePatientRequest req) {
+	public ResponseEntity<Patient> savePatient(@RequestBody @jakarta.validation.Valid CreatePatientRequest req) {
 
-	    Patient patient = Patient.builder()
-	            .abhaId(req.getAbhaId())
-	            .fullName(req.getFullName())
-	            .gender(req.getGender())
-	            .dateOfBirth(req.getDateOfBirth())
-	            .email(req.getEmail())
-	            .phoneNo(req.getPhoneNo())
-	            .age(req.getAge())
-	            .occupation(req.getOccupation())
-	            .bloodGroup(req.getBloodGroup())
-	            .address(req.getAddress())
-	            .build();
+		Patient patient = Patient.builder().abhaId(req.getAbhaId()).fullName(req.getFullName()).gender(req.getGender())
+				.dateOfBirth(req.getDateOfBirth()).email(req.getEmail()).phoneNo(req.getPhoneNo()).age(req.getAge())
+				.occupation(req.getOccupation()).bloodGroup(req.getBloodGroup()).address(req.getAddress()).build();
 
-	    Patient savedPatient = patientService.savePatient(patient);
-	    return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
+		Patient savedPatient = patientService.savePatient(patient);
+		return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
 	}
-	
+
+	    // ------------------------------
+		// UPDATE PATIENT
+		// -------------------------------
 	@PutMapping("/update/{id}")
-	public ResponseEntity<PatientResponse> updatePatient(
-	        @PathVariable Long id,
-	        @RequestBody @Valid UpdatePatientRequest req) {
+	public ResponseEntity<PatientResponse> updatePatient(@PathVariable Long id,
+			@RequestBody @Valid UpdatePatientRequest req) {
 
-	    Patient updated = patientService.updatePatient(id, req);
+		Patient updated = patientService.updatePatient(id, req);
 
-	    return ResponseEntity.ok(PatientResponse.fromEntity(updated));
+		return ResponseEntity.ok(PatientResponse.fromEntity(updated));
 	}
 
 	// -------------------------------
@@ -111,16 +103,13 @@ public class PatientController {
 	// SEARCH BY FULL NAME (PAGINATED)
 	// -------------------------------
 	@GetMapping("/search")
-	public ResponseEntity<Page<PatientResponse>> searchPatients(
-	        @RequestParam String query,
-	        Pageable pageable) {
+	public ResponseEntity<Page<PatientResponse>> searchPatients(@RequestParam String query, Pageable pageable) {
 
-	    Page<Patient> page = patientService.searchPatients(query, pageable);
+		Page<Patient> page = patientService.searchPatients(query, pageable);
 
-	    Page<PatientResponse> responsePage =
-	            page.map(PatientResponse::fromEntity);
+		Page<PatientResponse> responsePage = page.map(PatientResponse::fromEntity);
 
-	    return ResponseEntity.ok(responsePage);
+		return ResponseEntity.ok(responsePage);
 	}
 
 	// -------------------------------
@@ -128,17 +117,13 @@ public class PatientController {
 	// -------------------------------
 	@GetMapping
 	public ResponseEntity<Page<PatientResponse>> getAllPatients(
-	        @PageableDefault(size = 10, sort = "fullName") Pageable pageable) {
+			@PageableDefault(size = 10, sort = "fullName") Pageable pageable) {
 
-	    Page<Patient> patientPage = patientService.getAllPatients(pageable);
+		Page<Patient> patientPage = patientService.getAllPatients(pageable);
 
-	    Page<PatientResponse> responsePage =
-	            patientPage.map(PatientResponse::fromEntity);
+		Page<PatientResponse> responsePage = patientPage.map(PatientResponse::fromEntity);
 
-	    return ResponseEntity.ok(responsePage);
+		return ResponseEntity.ok(responsePage);
 	}
 
-
 }
-
-

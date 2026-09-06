@@ -4,12 +4,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.doctorclinicapp.backend.security.JwtAuthenticationEntryPoint;
+import com.doctorclinicapp.backend.security.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 	// Password Encoder
 	@Bean
@@ -17,25 +28,33 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	
-	// Securityfilterchain  function 
+	// Securityfilterchain  function
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
-				// keep everything open while we finish auth
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+		http.csrf(csrf -> csrf.disable())
+				.cors(Customizer.withDefaults())
+				// Stateless: every request must carry its own valid JWT, no server-side session.
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+				.authorizeHttpRequests(auth -> auth
+						// Login/register must stay open, or nobody could ever get a token.
+						.requestMatchers("/api/auth/**").permitAll()
+						// Actuator health check for deployment platforms (Railway etc.)
+						.requestMatchers("/actuator/health").permitAll()
+						// Everything else requires a valid JWT.
+						.anyRequest().authenticated()
+				)
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
 
-	
 	// Configurations
 	@Bean
 	public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
 		var cfg = new org.springframework.web.cors.CorsConfiguration();
-//      cfg.setAllowedOrigins(java.util.List.of("http://localhost:5173", "https://*.vercel.app")); // React dev server
-		cfg.setAllowedOriginPatterns(java.util.List.of("http://localhost:5173", "https://*.vercel.app" // matches your// Vercel preview +
-	// or replace with your exact domain, e.g.
+		cfg.setAllowedOriginPatterns(java.util.List.of("http://localhost:5173", "https://*.vercel.app"
+		// or replace with your exact domain, e.g.
 		// "https://doctor-clinic-frontend.vercel.app"
 		));
 		cfg.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

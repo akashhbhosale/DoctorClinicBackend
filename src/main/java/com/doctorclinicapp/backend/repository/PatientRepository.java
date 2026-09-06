@@ -29,12 +29,19 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     // Find patient by full name (case-insensitive)
     Page<Patient> findByFullNameContainingIgnoreCase(String fullNamePart, Pageable pageable);
-    
+
+    // Only active (non-deleted) patients — used for the normal patient list
+    Page<Patient> findAllByActiveTrue(Pageable pageable);
+
+    // Archived (soft-deleted) patients — used for an "Archived Patients" view
+    Page<Patient> findAllByActiveFalse(Pageable pageable);
+
     @Query("""
     	    SELECT p FROM Patient p
-    	    WHERE LOWER(p.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
+    	    WHERE p.active = true
+    	      AND (LOWER(p.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
     	       OR p.phoneNo LIKE CONCAT('%', :query, '%')
-    	       OR LOWER(p.abhaId) LIKE LOWER(CONCAT('%', :query, '%'))
+    	       OR LOWER(p.abhaId) LIKE LOWER(CONCAT('%', :query, '%')))
     	""")
     	Page<Patient> searchPatients(@Param("query") String query, Pageable pageable);
   

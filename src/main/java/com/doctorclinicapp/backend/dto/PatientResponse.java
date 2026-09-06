@@ -28,6 +28,7 @@ public class PatientResponse {
 
     private String occupation;
     private String address;
+    private Boolean active;
 
     //  PATIENT RESPONSE METHOD
     public static PatientResponse fromEntity(Patient patient) {
@@ -44,6 +45,7 @@ public class PatientResponse {
                 .email(patient.getEmail())
                 .occupation(patient.getOccupation())
                 .address(patient.getAddress())
+                .active(patient.getActive())
                 .build();
     }
 }

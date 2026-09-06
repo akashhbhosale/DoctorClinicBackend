@@ -60,8 +60,9 @@ public class DoctorAuthController {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         }
 
-        // Generate JWT
-        String token = jwtService.generateToken(doctor.getUsername());
+        // Generate JWT (role embedded as a claim so the filter can build authorities without a DB hit)
+        String role = doctor.getRole() != null ? doctor.getRole() : "DOCTOR";
+        String token = jwtService.generateToken(doctor.getUsername(), Map.of("role", role));
 
         return ResponseEntity.ok(Map.of(
                 "message", "Login successful",
@@ -74,7 +75,8 @@ public class DoctorAuthController {
                         "qualification", doctor.getQualification(),
                         "speciality", doctor.getSpeciality(),
                         "email", doctor.getEmail(),
-                        "phoneNo", doctor.getPhoneNo()
+                        "phoneNo", doctor.getPhoneNo(),
+                        "role", role
                 )
         ));
     }

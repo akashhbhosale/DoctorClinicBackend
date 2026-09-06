@@ -56,6 +56,12 @@ public class Doctor {
     @Pattern(regexp = "^[0-9]{10,15}$", message = "Phone must be 10–15 digits")
     private String phoneNo;
 
+    // Role for RBAC. Defaults to DOCTOR. Kept as a plain string (not an enum yet)
+    // so new roles (ADMIN, NURSE, etc.) can be added later without a migration.
+    @Column(length = 30)
+    @Builder.Default
+    private String role = "DOCTOR";
+
     @PrePersist
     private void prePersist() {
         if (this.registrationNo == null || this.registrationNo.isBlank()) {

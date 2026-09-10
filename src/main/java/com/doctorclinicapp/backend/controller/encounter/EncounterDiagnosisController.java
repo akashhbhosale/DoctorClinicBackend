@@ -28,6 +28,7 @@ public class EncounterDiagnosisController {
 
     private final EncounterDiagnosisService service;
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<EncounterDiagnosis> addDiagnosis(
             @RequestBody @Valid AddEncounterDiagnosisRequest request) {
 
@@ -43,6 +44,7 @@ public class EncounterDiagnosisController {
     
     //Delete
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public void deleteDiagnosis(@PathVariable Long id) {
         service.deleteDiagnosis(id);
     }

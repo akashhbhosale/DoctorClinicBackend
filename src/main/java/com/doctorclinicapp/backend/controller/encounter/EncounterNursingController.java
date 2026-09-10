@@ -3,20 +3,14 @@ package com.doctorclinicapp.backend.controller.encounter;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.doctorclinicapp.backend.dto.encounter.AddEncounterNursingRequest;
-import com.doctorclinicapp.backend.dto.encounter.EncounterNursingResponse;
+import lombok.RequiredArgsConstructor;
+
+import com.doctorclinicapp.backend.dto.encounter.*;
 import com.doctorclinicapp.backend.service.encounter.EncounterNursingService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/encounter-nursing")
@@ -34,10 +28,20 @@ public class EncounterNursingController {
         return ResponseEntity.status(201).body(response);
     }
 
-    // GET
+    // GET (single encounter)
     @GetMapping("/{encounterId}")
     public List<EncounterNursingResponse> get(@PathVariable Long encounterId) {
         return service.getByEncounter(encounterId);
+    }
+
+    // GET (all nursing records for a patient, across every encounter) —
+    // used by the Nursing History page. Must be mapped BEFORE /{encounterId}
+    // would ever ambiguously match "patient" as an id — Spring resolves this
+    // fine since "/patient/{patientId}" is a more specific literal segment,
+    // but keeping it visually separate here for clarity.
+    @GetMapping("/patient/{patientId}")
+    public List<EncounterNursingResponse> getByPatient(@PathVariable Long patientId) {
+        return service.getByPatient(patientId);
     }
 
     // DELETE

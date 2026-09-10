@@ -1,8 +1,10 @@
 package com.doctorclinicapp.backend.controller;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,9 +22,6 @@ import com.doctorclinicapp.backend.dto.PatientResponse;
 import com.doctorclinicapp.backend.dto.UpdatePatientRequest;
 import com.doctorclinicapp.backend.model.Patient;
 import com.doctorclinicapp.backend.service.PatientService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 
 import jakarta.validation.Valid;
 
@@ -84,6 +83,7 @@ public class PatientController {
 	// DELETE PATIENT BY ID (soft delete — see PatientService for why)
 	// -------------------------------
 	@DeleteMapping("/delete/{id}")
+	@org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
 		patientService.deletePatient(id);
 		return ResponseEntity.noContent().build();
@@ -93,6 +93,7 @@ public class PatientController {
 	// GET ARCHIVED (SOFT-DELETED) PATIENTS
 	// -------------------------------
 	@GetMapping("/archived")
+	@org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Page<PatientResponse>> getArchivedPatients(
 			@PageableDefault(size = 10, sort = "fullName") Pageable pageable) {
 
@@ -108,6 +109,7 @@ public class PatientController {
 	// RESTORE AN ARCHIVED PATIENT
 	// -------------------------------
 	@PutMapping("/restore/{id}")
+	@org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<PatientResponse> restorePatient(@PathVariable Long id) {
 		Patient restored = patientService.restorePatient(id);
 		return ResponseEntity.ok(PatientResponse.fromEntity(restored));

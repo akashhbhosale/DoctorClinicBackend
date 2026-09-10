@@ -4,14 +4,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
 
-import com.doctorclinicapp.backend.dto.encounter.*;
+import com.doctorclinicapp.backend.dto.encounter.AddEncounterNursingRequest;
+import com.doctorclinicapp.backend.dto.encounter.EncounterNursingResponse;
 import com.doctorclinicapp.backend.exception.ResourceNotFoundException;
-import com.doctorclinicapp.backend.model.encounter.*;
-import com.doctorclinicapp.backend.model.nursing.*;
-import com.doctorclinicapp.backend.repository.encounter.*;
-import com.doctorclinicapp.backend.repository.nursing.*;
+import com.doctorclinicapp.backend.model.encounter.Encounter;
+import com.doctorclinicapp.backend.model.encounter.EncounterNursing;
+import com.doctorclinicapp.backend.model.nursing.NursingAssessmentMaster;
+import com.doctorclinicapp.backend.model.nursing.NursingDiagnosisMaster;
+import com.doctorclinicapp.backend.model.nursing.NursingInterventionMaster;
+import com.doctorclinicapp.backend.repository.encounter.EncounterNursingRepository;
+import com.doctorclinicapp.backend.repository.encounter.EncounterRepository;
+import com.doctorclinicapp.backend.repository.nursing.NursingAssessmentRepository;
+import com.doctorclinicapp.backend.repository.nursing.NursingDiagnosisRepository;
+import com.doctorclinicapp.backend.repository.nursing.NursingInterventionRepository;
+import com.doctorclinicapp.backend.repository.nursing.NursingOutcomeRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +74,15 @@ public class EncounterNursingService {
                 .collect(Collectors.toList());
     }
 
+    // 🔥 GET BY PATIENT (across every encounter — used by Nursing History page)
+    public List<EncounterNursingResponse> getByPatient(Long patientId) {
+
+        return repository.findByEncounter_Patient_IdOrderByEncounter_EncounterDateDesc(patientId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     // DELETE
     public void deleteNursing(Long id) {
 
@@ -78,6 +96,8 @@ public class EncounterNursingService {
     private EncounterNursingResponse mapToResponse(EncounterNursing e) {
         return EncounterNursingResponse.builder()
                 .id(e.getId())
+                .encounterId(e.getEncounter().getId())
+                .encounterDate(e.getEncounter().getEncounterDate())
                 .assessmentId(e.getAssessment().getId())
                 .assessment(e.getAssessment().getName())
                 .diagnosisId(e.getDiagnosis().getId())

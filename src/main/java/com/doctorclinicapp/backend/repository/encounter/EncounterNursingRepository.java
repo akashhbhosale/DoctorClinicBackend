@@ -11,4 +11,9 @@ public interface EncounterNursingRepository
     List<EncounterNursing> findByEncounterId(Long encounterId);
 
     void deleteByEncounterId(Long encounterId);
+
+    // All nursing records for a patient, across every encounter — used by
+    // the Nursing History page (same idea as Encounter History, but for
+    // nursing records specifically). Most recent encounter first.
+    List<EncounterNursing> findByEncounter_Patient_IdOrderByEncounter_EncounterDateDesc(Long patientId);
 }

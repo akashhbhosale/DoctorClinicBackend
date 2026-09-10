@@ -3,6 +3,7 @@ package com.doctorclinicapp.backend;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,15 +13,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.doctorclinicapp.backend.security.JwtAuthenticationEntryPoint;
 import com.doctorclinicapp.backend.security.JwtAuthenticationFilter;
+import com.doctorclinicapp.backend.security.RoleAccessDeniedHandler;
 
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableMethodSecurity // enables @PreAuthorize("hasRole('...')") on controller methods
 @RequiredArgsConstructor
 public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final RoleAccessDeniedHandler roleAccessDeniedHandler;
 
 	// Password Encoder
 	@Bean
@@ -35,10 +39,15 @@ public class SecurityConfig {
 				.cors(Customizer.withDefaults())
 				// Stateless: every request must carry its own valid JWT, no server-side session.
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+						.accessDeniedHandler(roleAccessDeniedHandler)
+				)
 				.authorizeHttpRequests(auth -> auth
-						// Login/register must stay open, or nobody could ever get a token.
-						.requestMatchers("/api/auth/**").permitAll()
+						// Only login/register are public. /api/auth/admin/register requires
+						// ADMIN (enforced by @PreAuthorize on that method) — deliberately
+						// NOT included here even though it's under /api/auth.
+						.requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
 						// Actuator health check for deployment platforms (Railway etc.)
 						.requestMatchers("/actuator/health").permitAll()
 						// Everything else requires a valid JWT.

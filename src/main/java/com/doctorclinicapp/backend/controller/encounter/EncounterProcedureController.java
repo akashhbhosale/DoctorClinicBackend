@@ -3,15 +3,20 @@ package com.doctorclinicapp.backend.controller.encounter;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-
-import com.doctorclinicapp.backend.dto.encounter.*;
-import com.doctorclinicapp.backend.model.encounter.EncounterProcedure;
+import com.doctorclinicapp.backend.dto.encounter.AddEncounterProcedureRequest;
+import com.doctorclinicapp.backend.dto.encounter.EncounterProcedureResponse;
 import com.doctorclinicapp.backend.service.encounter.EncounterProcedureService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/encounter-procedure")
@@ -22,6 +27,7 @@ public class EncounterProcedureController {
 
     // ADD
         @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<EncounterProcedureResponse> addProcedure(
             @Valid @RequestBody AddEncounterProcedureRequest req) {
 
@@ -38,6 +44,7 @@ public class EncounterProcedureController {
 
     // DELETE
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public void delete(@PathVariable Long id) {
         service.deleteProcedure(id);
     }

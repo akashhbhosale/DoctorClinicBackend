@@ -1,5 +1,7 @@
 package com.doctorclinicapp.backend.dto.encounter;
 
+import java.time.LocalDateTime;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,6 +10,11 @@ import lombok.Data;
 public class EncounterNursingResponse {
 
     private Long id;
+
+    // Included so the Nursing History page (across all encounters for a
+    // patient) can show which visit each record belongs to.
+    private Long encounterId;
+    private LocalDateTime encounterDate;
 
     private Long assessmentId;
     private String assessment;

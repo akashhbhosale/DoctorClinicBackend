@@ -23,7 +23,11 @@ public class DoctorAuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;   
 
-    // --- Register Doctor ---
+    // --- Register (public) ---
+    // Anyone can self-register, but ONLY as DOCTOR or NURSE. Without this check,
+    // a client could set "role": "ADMIN" directly in the JSON body and grant
+    // themselves admin — this endpoint used to accept the raw Doctor entity
+    // with no restriction on that field at all.
     @PostMapping("/register")
     public ResponseEntity<?> registerDoctor(@Valid @RequestBody Doctor request) {
         if (doctorRepository.existsByUsername(request.getUsername())) {
@@ -36,12 +40,56 @@ public class DoctorAuthController {
             return ResponseEntity.status(409).body(Map.of("message", "Phone number already exists"));
         }
 
+        String requestedRole = request.getRole();
+        if (!"NURSE".equalsIgnoreCase(requestedRole)) {
+            request.setRole("DOCTOR"); // any value other than an explicit "NURSE" falls back to DOCTOR
+        } else {
+            request.setRole("NURSE");
+        }
+
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         Doctor saved = doctorRepository.save(request);
 
         return ResponseEntity.status(201).body(Map.of(
                 "message", "Registered successfully",
                 "id", saved.getId()
+        ));
+    }
+
+    // --- Create staff account as ADMIN (protected) ---
+    // The only way to create an ADMIN (or any role) account is for an existing
+    // admin to do it here. There's no public "become an admin" path.
+    // Bootstrapping the very first admin has to be done directly in the
+    // database (see README) since no admin exists yet to call this endpoint.
+    @PostMapping("/admin/register")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> registerStaffAsAdmin(@Valid @RequestBody Doctor request) {
+        if (doctorRepository.existsByUsername(request.getUsername())) {
+            return ResponseEntity.status(409).body(Map.of("message", "Username already exists"));
+        }
+        if (doctorRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.status(409).body(Map.of("message", "Email already exists"));
+        }
+        if (doctorRepository.existsByPhoneNo(request.getPhoneNo())) {
+            return ResponseEntity.status(409).body(Map.of("message", "Phone number already exists"));
+        }
+
+        String requestedRole = request.getRole();
+        if (requestedRole == null
+                || !(requestedRole.equalsIgnoreCase("ADMIN")
+                     || requestedRole.equalsIgnoreCase("DOCTOR")
+                     || requestedRole.equalsIgnoreCase("NURSE"))) {
+            return ResponseEntity.badRequest().body(Map.of("message", "role must be ADMIN, DOCTOR, or NURSE"));
+        }
+        request.setRole(requestedRole.toUpperCase());
+
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        Doctor saved = doctorRepository.save(request);
+
+        return ResponseEntity.status(201).body(Map.of(
+                "message", "Staff account created successfully",
+                "id", saved.getId(),
+                "role", saved.getRole()
         ));
     }
 

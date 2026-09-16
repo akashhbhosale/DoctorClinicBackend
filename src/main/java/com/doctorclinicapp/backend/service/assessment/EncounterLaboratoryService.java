@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.doctorclinicapp.backend.dto.assessment.AddEncounterLaboratoryRequest;
 import com.doctorclinicapp.backend.dto.assessment.EncounterLaboratoryFileResponse;
 import com.doctorclinicapp.backend.dto.assessment.EncounterLaboratoryResponse;
+import com.doctorclinicapp.backend.dto.assessment.FileContentResponse;
 
 public interface EncounterLaboratoryService {
 
@@ -21,4 +22,6 @@ public interface EncounterLaboratoryService {
     List<EncounterLaboratoryFileResponse> getFilesByLaboratoryId(Long laboratoryId);
 
     void deleteLaboratoryFile(Long fileId);
+
+    FileContentResponse downloadLaboratoryFile(Long fileId);
 }

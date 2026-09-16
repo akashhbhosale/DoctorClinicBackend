@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.doctorclinicapp.backend.dto.assessment.AddEncounterLaboratoryRequest;
 import com.doctorclinicapp.backend.dto.assessment.EncounterLaboratoryFileResponse;
 import com.doctorclinicapp.backend.dto.assessment.EncounterLaboratoryResponse;
+import com.doctorclinicapp.backend.dto.assessment.FileContentResponse;
 import com.doctorclinicapp.backend.exception.ResourceNotFoundException;
 import com.doctorclinicapp.backend.model.assessment.EncounterLaboratory;
 import com.doctorclinicapp.backend.model.assessment.EncounterLaboratoryFile;
@@ -147,14 +149,39 @@ public class EncounterLaboratoryServiceImpl implements EncounterLaboratoryServic
         encounterLaboratoryFileRepository.delete(laboratoryFile);
     }
 
+    // Was PDF-only; broadened to match Radiology's acceptance so lab
+    // reports that come back as scanned images work too, not just PDFs.
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "application/pdf", "image/jpeg", "image/png", "image/jpg"
+    );
+
+    @Override
+    public FileContentResponse downloadLaboratoryFile(Long fileId) {
+        EncounterLaboratoryFile laboratoryFile = encounterLaboratoryFileRepository.findById(fileId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Laboratory file not found with id: " + fileId));
+
+        try {
+            byte[] data = Files.readAllBytes(Paths.get(laboratoryFile.getFilePath()));
+
+            return FileContentResponse.builder()
+                    .data(data)
+                    .contentType(laboratoryFile.getContentType())
+                    .fileName(laboratoryFile.getOriginalFileName())
+                    .build();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read laboratory file from server");
+        }
+    }
+
     private void validatePdfFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("PDF file is required");
+            throw new IllegalArgumentException("A report file is required");
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !contentType.equalsIgnoreCase("application/pdf")) {
-            throw new IllegalArgumentException("Only PDF files are allowed");
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            throw new IllegalArgumentException("Only PDF, JPG, or PNG files are allowed");
         }
     }
 

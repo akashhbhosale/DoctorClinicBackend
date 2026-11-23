@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EncounterHistoryResponse {
     private Long id;
+    private String visitStatus;
     private LocalDateTime encounterDate;
     private Long doctorId;
     private String doctorName;

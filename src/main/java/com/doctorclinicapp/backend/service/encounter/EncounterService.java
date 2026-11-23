@@ -2,6 +2,7 @@ package com.doctorclinicapp.backend.service.encounter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.doctorclinicapp.backend.model.encounter.EncounterArchive;
 import org.springframework.stereotype.Service;
 import com.doctorclinicapp.backend.dto.encounter.DeleteEncounterResponse;
 import com.doctorclinicapp.backend.dto.encounter.EncounterChiefComplaintResponse;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class EncounterService {
 
+    private final jakarta.persistence.EntityManager em;
     private final EncounterRepository encounterRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
@@ -76,6 +78,7 @@ public class EncounterService {
 
         return EncounterDetailsResponse.builder()
                 .encounterId(encounter.getId())
+                .visitStatus(encounter.getVisitStatus())
                 .patientId(encounter.getPatient().getId())
                 .patientName(encounter.getPatient().getFullName())
                 .doctorId(encounter.getDoctor().getId())
@@ -122,23 +125,18 @@ public class EncounterService {
                 .build();
     }
     
-    //Delete All Method used in it
-    public DeleteEncounterResponse deleteEncounter(Long encounterId) {
-
-        Encounter encounter = encounterRepository.findById(encounterId)
-                .orElseThrow(() -> new ResourceNotFoundException("Encounter not found"));
-
-        // Delete child records first
-        encounterChiefComplaintRepository.deleteByEncounterId(encounterId);
-        encounterDiagnosisRepository.deleteByEncounter_Id(encounterId);
-        encounterProcedureRepository.deleteByEncounterId(encounterId);
-
-        // Delete main encounter
-        encounterRepository.delete(encounter);
-
-        return new DeleteEncounterResponse("Encounter and all related data deleted successfully");
+    public DeleteEncounterResponse deleteEncounter(Long id, String username, String reason) {
+        Encounter encounter = em.find(Encounter.class, id, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (encounter == null || !encounter.getDoctor().getUsername().equals(username))
+            throw new ResourceNotFoundException("Encounter not found");
+        if (reason == null || reason.isBlank() || reason.trim().length() > 500)
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, "Enter a reason of up to 500 characters");
+        if (em.find(EncounterArchive.class, id) == null)
+            em.persist(new EncounterArchive(id, username, reason.trim()));
+        return new DeleteEncounterResponse("Encounter archived");
     }
-    
+
     // To get list of previous History of encounters 
     public List<EncounterHistoryResponse> getEncounterHistoryByPatientId(Long patientId) {
 
@@ -149,6 +147,7 @@ public class EncounterService {
                 .stream()
                 .map(encounter -> EncounterHistoryResponse.builder()
                         .id(encounter.getId())
+                        .visitStatus(encounter.getVisitStatus())
                         .encounterDate(encounter.getEncounterDate())
                         .doctorId(encounter.getDoctor() != null ? encounter.getDoctor().getId() : null)
                         .doctorName(encounter.getDoctor() != null ? encounter.getDoctor().getFullName() : null)

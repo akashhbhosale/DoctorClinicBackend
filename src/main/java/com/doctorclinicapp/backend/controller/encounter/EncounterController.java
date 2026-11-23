@@ -56,8 +56,9 @@ public class EncounterController {
     
     // Delete All
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteEncounterResponse> deleteEncounter(@PathVariable Long id) {
-        return ResponseEntity.ok(encounterService.deleteEncounter(id));
+    public ResponseEntity<DeleteEncounterResponse> deleteEncounter(@PathVariable Long id, java.security.Principal principal,
+            @RequestBody java.util.Map<String, String> request) {
+        return ResponseEntity.ok(encounterService.deleteEncounter(id, principal.getName(), request.get("reason")));
     }
     
     // To get history of encounters

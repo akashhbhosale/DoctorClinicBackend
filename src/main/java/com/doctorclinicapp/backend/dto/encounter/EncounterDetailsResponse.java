@@ -11,6 +11,7 @@ import lombok.Data;
 public class EncounterDetailsResponse {
 
     private Long encounterId;
+    private String visitStatus;
 
     private Long patientId;
     private String patientName;

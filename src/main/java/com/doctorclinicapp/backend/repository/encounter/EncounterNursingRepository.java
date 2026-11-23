@@ -15,5 +15,6 @@ public interface EncounterNursingRepository
     // All nursing records for a patient, across every encounter — used by
     // the Nursing History page (same idea as Encounter History, but for
     // nursing records specifically). Most recent encounter first.
-    List<EncounterNursing> findByEncounter_Patient_IdOrderByEncounter_EncounterDateDesc(Long patientId);
+
+    @org.springframework.data.jpa.repository.Query("select e from EncounterNursing e where e.encounter.patient.id = ?1 and e.encounter.id not in (select a.encounterId from EncounterArchive a) order by e.encounter.encounterDate desc")    List<EncounterNursing> findByEncounter_Patient_IdOrderByEncounter_EncounterDateDesc(Long patientId);
 }
